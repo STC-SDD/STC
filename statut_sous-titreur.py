@@ -4,6 +4,7 @@ Created on Tue Nov 11 13:24:55 2025
 
 @author: marie
 """
+
 sous_titreurs = ['Alice', 'Bob', 'Charlie']
 
 sous_titreur_statuts = {
