@@ -1,0 +1,26 @@
+{
+    "1": {
+        "start": 0.0,
+        "end": 3.5,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "2": {
+        "start": 3.5,
+        "end": 7.0,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    },
+    "3": {
+        "start": 7.0,
+        "end": 10.5,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "4": {
+        "start": 10.5,
+        "end": 15.0,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    }
+}
