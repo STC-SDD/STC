@@ -1,0 +1,122 @@
+  <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Sous-titreur</title>
+      <style>
+        #subtitle { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 22px; color: white; text-shadow: 2px 2px 4px black; }
+        #container { position: relative; width: 640px; }
+      </style>
+    </head>
+    <body>
+      <h2>Interface Sous-titreur</h2>
+      <div id="container">
+       <video id="video" width="640" controls>
+  <source src="/video/sous_titrage.mp4" type="video/mp4">
+</video>
+
+        <div id="subtitle"></div>
+      </div>
+      <div>
+        <input type="text" id="inputSubtitle" placeholder="Écrire le sous-titre..." disabled>
+        <button id="submitBtn" disabled>Soumettre</button>
+      </div>
+
+      <div id="fragments"></div>
+
+<script>
+const sous_titreur = prompt("Entrez votre nom de sous-titreur :");
+const ws = new WebSocket(`ws://localhost:8000/ws/${sous_titreur}`);
+let fragments = [];
+let currentFrag = null;
+let waitingSubmission = false;
+
+// --- Affichage des fragments assignés ---
+const fragmentsDiv = document.getElementById("fragments");
+
+ws.onmessage = (event) => {
+    // Parse fragment numbers from string
+    const regex = /Fragment \d+: start ([0-9.]+)s - end ([0-9.]+)s/;
+    const match = event.data.match(regex);
+    if (match) {
+        const frag = {
+            start: parseFloat(match[1]),
+            end: parseFloat(match[2]),
+            text: "",       // pour stocker le sous-titre envoyé
+            submitted: false
+        };
+        fragments.push(frag);
+        fragments.sort((a, b) => a.start - b.start);
+
+        // Afficher le fragment assigné
+        fragmentsDiv.innerHTML += `<p>Fragment assigné: start ${frag.start}s - end ${frag.end}s</p>`;
+        console.log("Fragment assigné:", frag);
+    }
+};
+
+const video = document.getElementById("video");
+const input = document.getElementById("inputSubtitle");
+const btn = document.getElementById("submitBtn");
+
+video.ontimeupdate = () => {
+    const t = video.currentTime;
+
+    // Si on attend la soumission, ne rien changer
+    if (waitingSubmission) {
+        input.disabled = false;
+        btn.disabled = false;
+        return;
+    }
+
+    // Chercher le fragment actuel
+    currentFrag = fragments.find(f => t >= f.start && t < f.end);
+
+    if (currentFrag) {
+        // Activer la saisie
+        input.disabled = false;
+        btn.disabled = false;
+    } else {
+        // Si on est juste après un fragment (fin atteinte)
+        const justEndedFrag = fragments.find(f => t >= f.end && !f.submitted);
+        if (justEndedFrag) {
+            // Mute la vidéo
+            video.muted = true;
+            currentFrag = justEndedFrag;
+            waitingSubmission = true;
+            input.disabled = false;
+            btn.disabled = false;
+        } else {
+            input.disabled = true;
+            btn.disabled = true;
+        }
+    }
+};
+
+btn.onclick = () => {
+    if (input.value.trim() !== "") {
+        // Envoyer le sous-titre au serveur
+        ws.send(input.value);
+
+        // Stocker le texte et marquer le fragment comme soumis
+        if (currentFrag) {
+            currentFrag.submitted = true;
+            currentFrag.text = input.value;
+
+            // Afficher le sous-titre saisi sous le fragment
+            fragmentsDiv.innerHTML += `<p>Sous-titre soumis: "${input.value}" pour fragment ${currentFrag.start}-${currentFrag.end}s</p>`;
+        }
+
+        // Réactiver le son et désactiver le bouton
+        video.muted = false;
+        input.disabled = true;
+        btn.disabled = true;
+        waitingSubmission = false;
+
+        input.value = "";
+    }
+};
+</script>
+
+
+
+    </body>
+    </html>
