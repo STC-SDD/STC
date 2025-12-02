@@ -4,8 +4,7 @@ from routers.init_routes import init_routes
 from services.fragment_assigner import initialize_fragments
 
 app = FastAPI()
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/video", StaticFiles(directory="video"), name="video")
 
 # Initialise l'état des fragments au démarrage
 @app.on_event("startup")
