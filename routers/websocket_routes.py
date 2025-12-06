@@ -5,22 +5,26 @@ from services.fragment_assigner import fragments_state
 router = APIRouter()
 ws_manager = WebSocketManager()
 
-@router.websocket("/ws/{sous_titreur}")
-async def websocket_endpoint(ws: WebSocket, sous_titreur: str):
-    await ws_manager.connect(sous_titreur, ws)
+@router.websocket("/ws/{client}")
+async def websocket_endpoint(ws: WebSocket, client: str):
+    """Single WebSocket used for fragment assignment and submissions.
+    Playback is client-driven (no admin control).
+    """
+    await ws_manager.connect(client, ws)
 
-    # Envoyer les fragments pour ce sous-titreur
+    # Send assigned fragments to this subtitler
     for frag_id, info in fragments_state.items():
-        if info["sous_titreur"] == sous_titreur:
+        if info.get("sous_titreur") == client:
             await ws_manager.send_personal_message(
-                sous_titreur,
+                client,
                 f"Fragment {frag_id}: start {info['start']}s - end {info['end']}s"
             )
 
     try:
         while True:
             data = await ws.receive_text()
-            print(f"{sous_titreur} a envoyé : {data}")
+            print(f"{client} a envoyé : {data}")
     except WebSocketDisconnect:
-        ws_manager.disconnect(sous_titreur)
-        print(f"{sous_titreur} déconnecté")
+        ws_manager.disconnect(client)
+        print(f"{client} déconnecté")
+    # Admin endpoint removed per request; no broadcast controls remain.

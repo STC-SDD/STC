@@ -14,3 +14,13 @@ class WebSocketManager:
         ws = self.clients.get(name)
         if ws:
             await ws.send_text(message)
+
+    async def broadcast(self, message):
+        to_remove = []
+        for name, ws in self.clients.items():
+            try:
+                await ws.send_text(message)
+            except Exception:
+                to_remove.append(name)
+        for name in to_remove:
+            self.disconnect(name)

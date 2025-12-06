@@ -1,26 +1,56 @@
 {
-    "1": {
-        "start": 0.0,
-        "end": 3.5,
+    "seg_001": {
+        "start": 14.139999999999787,
+        "end": 25.21999999999955,
         "sous_titreur": "Alice",
         "statut": "en cours"
     },
-    "2": {
-        "start": 3.5,
-        "end": 7.0,
+    "seg_002": {
+        "start": 25.75999999999954,
+        "end": 35.75999999999999,
         "sous_titreur": "Bob",
         "statut": "en cours"
     },
-    "3": {
-        "start": 7.0,
-        "end": 10.5,
+    "seg_003": {
+        "start": 37.30000000000023,
+        "end": 47.48000000000182,
         "sous_titreur": "Alice",
         "statut": "en cours"
     },
-    "4": {
-        "start": 10.5,
-        "end": 15.0,
+    "seg_004": {
+        "start": 47.78000000000187,
+        "end": 57.78000000000343,
         "sous_titreur": "Bob",
+        "statut": "en cours"
+    },
+    "seg_005": {
+        "start": 58.300000000003514,
+        "end": 68.30000000000355,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "seg_006": {
+        "start": 68.48000000000351,
+        "end": 78.48000000000152,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    },
+    "seg_007": {
+        "start": 80.5800000000011,
+        "end": 90.57999999999912,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "seg_008": {
+        "start": 97.47999999999774,
+        "end": 108.11999999999563,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    },
+    "seg_009": {
+        "start": 108.39999999999557,
+        "end": 118.39999999999358,
+        "sous_titreur": "Alice",
         "statut": "en cours"
     }
 }

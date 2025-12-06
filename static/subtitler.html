@@ -1,7 +1,10 @@
-  <!DOCTYPE html>
+    <!DOCTYPE html>
     <html>
     <head>
       <title>Sous-titreur</title>
+            <!-- Subtitler page: plays video immediately (autoplay),
+                     falls back to a small button if browser blocks unmuted autoplay.
+                     Receives assigned fragments via WebSocket; no admin control needed. -->
       <style>
         #subtitle { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 22px; color: white; text-shadow: 2px 2px 4px black; }
         #container { position: relative; width: 640px; }
@@ -9,19 +12,26 @@
     </head>
     <body>
       <h2>Interface Sous-titreur</h2>
-      <div id="container">
-       <video id="video" width="640" controls>
+        <div id="container">
+        <video id="video" width="640" autoplay playsinline>
   <source src="/video/sous_titrage.mp4" type="video/mp4">
 </video>
 
         <div id="subtitle"></div>
       </div>
-      <div>
+            <div id="autoplayHint" style="margin-top:10px; display:none; color:#e67e22;">
+                Playback was blocked by the browser. Click to start:
+                <button id="startPlaybackBtn">Start Playback</button>
+            </div>
+            <div>
         <input type="text" id="inputSubtitle" placeholder="Écrire le sous-titre..." disabled>
         <button id="submitBtn" disabled>Soumettre</button>
       </div>
 
+      
+
       <div id="fragments"></div>
+      
 
 <script>
 const sous_titreur = prompt("Entrez votre nom de sous-titreur :");
@@ -29,25 +39,24 @@ const ws = new WebSocket(`ws://localhost:8000/ws/${sous_titreur}`);
 let fragments = [];
 let currentFrag = null;
 let waitingSubmission = false;
+let liveStarted = true; // start immediately for subtitler
 
 // --- Affichage des fragments assignés ---
 const fragmentsDiv = document.getElementById("fragments");
 
 ws.onmessage = (event) => {
-    // Parse fragment numbers from string
-    const regex = /Fragment \d+: start ([0-9.]+)s - end ([0-9.]+)s/;
-    const match = event.data.match(regex);
-    if (match) {
+        // Parse legacy fragment message
+        const regex = /Fragment \d+: start ([0-9.]+)s - end ([0-9.]+)s/;
+        const match = event.data.match(regex);
+        if (match) {
         const frag = {
             start: parseFloat(match[1]),
             end: parseFloat(match[2]),
-            text: "",       // pour stocker le sous-titre envoyé
+            text: "",
             submitted: false
         };
         fragments.push(frag);
         fragments.sort((a, b) => a.start - b.start);
-
-        // Afficher le fragment assigné
         fragmentsDiv.innerHTML += `<p>Fragment assigné: start ${frag.start}s - end ${frag.end}s</p>`;
         console.log("Fragment assigné:", frag);
     }
@@ -56,8 +65,22 @@ ws.onmessage = (event) => {
 const video = document.getElementById("video");
 const input = document.getElementById("inputSubtitle");
 const btn = document.getElementById("submitBtn");
+const startPlaybackBtn = document.getElementById('startPlaybackBtn');
+
+// Try to start immediately; show hint if blocked
+document.addEventListener('DOMContentLoaded', () => {
+    try { video.muted = false; } catch(e) {}
+    video.play().catch(() => {
+        const hint = document.getElementById('autoplayHint');
+        if (hint) hint.style.display = 'block';
+    });
+});
+ 
+
+ 
 
 video.ontimeupdate = () => {
+    if (!liveStarted) { return; }
     const t = video.currentTime;
 
     // Si on attend la soumission, ne rien changer
@@ -114,6 +137,13 @@ btn.onclick = () => {
         input.value = "";
     }
 };
+
+// If autoplay is blocked, allow manual start
+startPlaybackBtn && (startPlaybackBtn.onclick = () => {
+    const hint = document.getElementById('autoplayHint');
+    if (hint) hint.style.display = 'none';
+    video.play().catch(()=>{});
+});
 </script>
 
 

@@ -87,7 +87,7 @@ sous_titreurs.json
     "Bob": "connecté"
 }
 
-fragments.json
+fragments.json (généré automatiquement par la VAD live)
 [
     {"id": "frag1", "start": 0, "end": 5},
     {"id": "frag2", "start": 5, "end": 10}
@@ -98,3 +98,12 @@ fragments_state.json (généré automatiquement)
     "frag1": {"start": 0, "end": 5, "sous_titreur": "Alice", "statut": "en cours"},
     "frag2": {"start": 5, "end": 10, "sous_titreur": "Bob", "statut": "en cours"}
 }
+
+6. Ce qu'était ajouté (live, VAD, pages)
+
+- VAD en direct (1x) via WebRTC VAD + ffmpeg piping.
+    - Écrit en continu dans `data/fragments.json` au format tableau: `[{"id":"frag1","start":...,"end":...}, ...]`.
+    - Durée minimale de fragment: 10 secondes.
+- Pages front:
+    - `Subtitler` (racine `/`): la vidéo démarre immédiatement (autoplay); si le navigateur bloque l’autoplay non muet, un petit bouton “Start Playback” apparaît.
+    - `Viewer` (`/viewer`): attend 30 secondes avant de lancer la lecture; même fallback si l’autoplay est bloqué.
