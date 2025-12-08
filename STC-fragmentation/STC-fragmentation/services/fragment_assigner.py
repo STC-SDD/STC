@@ -1,53 +1,50 @@
 from .json_loader import load_json, save_json
 
-# Variable globale maintenue à jour
+
 fragments_state = {}
-
-
-def attribuer_fragments(fragments, sous_titreurs):
-    state = {}
-    connected = [k for k, v in sous_titreurs.items() if v == "connecté"]
-
-    if not connected:
-        print("[WARN] Aucun sous-titreur connecté → aucune attribution possible.")
-        return {}
-
-    for i, frag in enumerate(fragments):
-        st = connected[i % len(connected)]
-        state[frag["id"]] = {
-            "start": frag["start"],
-            "end": frag["end"],
-            "sous_titreur": st,
-            "statut": "en cours"
-        }
-
-    save_json("data/fragments_state.json", state)
-    return state
+fragments_order = []  # pour chaque sous-titreur : liste ordonnée de ses fragments
 
 
 def initialize_fragments():
-    global fragments_state
+    global fragments_state, fragments_order
 
-    # Charger les fragments
     fragments = load_json("data/fragments.json", default=[])
-
-    # Convertir format {"segments": [...]} → liste simple
-    if isinstance(fragments, dict) and "segments" in fragments:
-        segs = fragments["segments"] or []
-        fragments = [
-            {
-                "id": f"seg_{i+1:03d}",
-                "start": s.get("start_time", s.get("start")),
-                "end": s.get("end_time", s.get("end"))
-            }
-            for i, s in enumerate(segs)
-            if s
-        ]
-        save_json("data/fragments.json", fragments)
-
-    # Charger les sous-titreurs
     sous_titreurs = load_json("data/sous_titreurs.json", default={})
 
-    # Mettre à jour la variable globale
-    fragments_state = attribuer_fragments(fragments, sous_titreurs)
-    print("[INFO] fragments_state initialisé :", fragments_state)
+    # Répartition round-robin pour déterminer l'ordre
+    connected = [k for k, v in sous_titreurs.items() if v == "connecté"]
+    if not connected:
+        print("[WARN] Aucun sous-titreur connecté")
+        return
+
+    fragments_state = {}
+    fragments_order = {st: [] for st in connected}
+
+    for i, frag in enumerate(fragments):
+        st = connected[i % len(connected)]
+        frag_id = frag["id"]
+        fragments_state[frag_id] = {
+            "start": frag["start"],
+            "end": frag["end"],
+            "sous_titreur": st,
+            "done": False
+        }
+        fragments_order[st].append(frag_id)
+
+    save_json("data/fragments_state.json", fragments_state)
+
+
+def get_next_fragment(sous_titreur):
+    """Retourne le prochain fragment non terminé du sous-titreur."""
+    for frag_id in fragments_order.get(sous_titreur, []):
+        info = fragments_state.get(frag_id)
+        if info and not info["done"]:
+            return frag_id, info
+    return None, None
+
+
+def mark_fragment_done(frag_id):
+    """Marque un fragment comme terminé."""
+    if frag_id in fragments_state:
+        fragments_state[frag_id]["done"] = True
+        save_json("data/fragments_state.json", fragments_state)
