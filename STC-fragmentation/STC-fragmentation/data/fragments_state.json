@@ -1,0 +1,50 @@
+{
+    "frag1": {
+        "start": 14.139999999999787,
+        "end": 25.21999999999955,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "frag2": {
+        "start": 25.75999999999954,
+        "end": 35.75999999999999,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    },
+    "frag3": {
+        "start": 37.30000000000023,
+        "end": 47.48000000000182,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "frag4": {
+        "start": 47.78000000000187,
+        "end": 57.78000000000343,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    },
+    "frag5": {
+        "start": 58.300000000003514,
+        "end": 68.30000000000355,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "frag6": {
+        "start": 68.48000000000351,
+        "end": 78.48000000000152,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    },
+    "frag7": {
+        "start": 80.5800000000011,
+        "end": 90.57999999999912,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    },
+    "frag8": {
+        "start": 97.47999999999774,
+        "end": 108.11999999999563,
+        "sous_titreur": "Bob",
+        "statut": "en cours"
+    }
+}
