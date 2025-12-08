@@ -18,6 +18,7 @@ def get_user_fragments(username: str):
 
 @router.post("/submit_fragment/{fragment_id}")
 def submit_fragment(fragment_id: int, text: str):
+    
     state = load_json("data/fragments_state.json")
 
     if str(fragment_id) not in state:

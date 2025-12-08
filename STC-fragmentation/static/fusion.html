@@ -21,7 +21,8 @@
 
 <div id="container">
   <video id="video" width="640" controls>
-    <source src="sous_titrage.mp4" type="video/mp4">
+    <!-- Chemin correct depuis FastAPI -->
+    <source src="/video/sous_titrage.mp4" type="video/mp4">
   </video>
   <div id="subtitle"></div>
 </div>
@@ -29,21 +30,24 @@
 <script>
   let fragments = [];
 
-  fetch("subtitles.json")
-    .then(res => res.json())
-    .then(data => {
-      fragments = data.sort((a, b) => a.start - b.start);
-    });
+fetch("/subtitles")
+  .then(res => res.json())
+  .then(data => {
+    // Convertir objet en tableau
+    fragments = Object.values(data).sort((a, b) => a.start - b.start);
+    console.log(fragments); // <--- Vérifie dans la console que c'est bien un tableau
+  });
 
-  const video = document.getElementById("video");
-  const subtitleEl = document.getElementById("subtitle");
+const video = document.getElementById("video");
+const subtitleEl = document.getElementById("subtitle");
 
-  video.ontimeupdate = () => {
-    const t = video.currentTime;
-    const f = fragments.find(fr => t >= fr.start && t < fr.end);
-    subtitleEl.textContent = f ? f.text : "";
-  };
+video.ontimeupdate = () => {
+  const t = video.currentTime;
+  const f = fragments.find(fr => t >= fr.start && t < fr.end);
+  subtitleEl.textContent = f ? f.text : "";
+};
 </script>
+
 
 </body>
 </html>

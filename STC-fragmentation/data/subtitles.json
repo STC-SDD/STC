@@ -1,17 +1,8 @@
-[
-  { "start": 0.0, "end": 13.0, "text": "musique" },
-
-  { "start": 14.0, "end": 16.0, "text": "Vous ne vous en êtes peut-être pas encore aperçu." },
-    { "start": 16.0, "end": 19.0, "text": "mais il parait que internet est mort. " },
-
-  { "start": 19.0, "end": 23.0, "text": " envahis par le slob." },
-
-
-  { "start": 25.0, "end": 26.0, "text": "La question se pose " },
-    { "start": 27.0, "end": 29.0, "text": "est-ce que les espaces sociaux " },
-    { "start": 29.0, "end": 32.0, "text": "les moteurs de recherche et le open web " },
-    { "start": 32.0, "end": 35.0, "text": "survivront au slop généralisés " }
-
-
-
-]
+{
+    "frag1": {
+        "text": "n3am asidi n3am a lala",
+        "sous_titreur": "Bob",
+        "start": 14.139999999999787,
+        "end": 25.21999999999955
+    }
+}

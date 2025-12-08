@@ -8,6 +8,7 @@ import asyncio
 
 app = FastAPI()
 app.mount("/video", StaticFiles(directory="video"), name="video")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Initialise l'état des fragments au démarrage
 @app.on_event("startup")
