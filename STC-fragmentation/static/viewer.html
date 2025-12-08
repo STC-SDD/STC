@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Viewer</title>
+  <!-- Viewer page: waits 30 seconds after load, then attempts to play.
+       If playback is blocked by the browser, shows a minimal button.
+       No admin/WebSocket control is required for playback timing. -->
+  <style>
+    #subtitle { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 22px; color: white; text-shadow: 2px 2px 4px black; }
+    #container { position: relative; width: 640px; }
+  </style>
+</head>
+<body>
+  <h2>Viewer (30s delay)</h2>
+  <div id="container">
+    <video id="video" width="640" playsinline>
+      <source src="/video/sous_titrage.mp4" type="video/mp4">
+    </video>
+    <div id="subtitle"></div>
+  </div>
+
+  <div id="autoplayHint" style="margin-top:10px; display:none; color:#e67e22;">
+    Playback was blocked by the browser. Click to start:
+    <button id="startPlaybackBtn">Start Playback</button>
+  </div>
+
+  <div id="fragments"></div>
+  
+
+<script>
+// Viewer listens for admin start and then starts playback with 30s delay
+const ws = new WebSocket(`ws://localhost:8000/ws/viewer`);
+let liveStarted = false;
+const video = document.getElementById("video");
+const startPlaybackBtn = document.getElementById('startPlaybackBtn');
+ 
+
+ws.onmessage = (event) => {
+  try {
+    const msg = JSON.parse(event.data);
+    if (msg.type === "control" && msg.action === "start_live") {
+      liveStarted = true;
+      video.currentTime = 30; // 30 second delay
+      video.muted = false;
+      video.play().catch(() => {
+        const hint = document.getElementById('autoplayHint');
+        if (hint) hint.style.display = 'block';
+      });
+      return;
+    }
+  } catch (_) {
+    // ignore non-JSON messages
+  }
+};
+
+// If autoplay is blocked, allow manual start
+startPlaybackBtn && (startPlaybackBtn.onclick = () => {
+  const hint = document.getElementById('autoplayHint');
+  if (hint) hint.style.display = 'none';
+  video.play().catch(()=>{});
+});
+ 
+</script>
+<script>
+// Ensure viewer starts after 30s even without admin or websockets
+const video2 = document.getElementById('video');
+const startPlaybackBtn2 = document.getElementById('startPlaybackBtn');
+setTimeout(() => {
+  try { video2.currentTime = 0; video2.muted = false; } catch (e) {}
+  video2.play().catch(() => {
+    const hint = document.getElementById('autoplayHint');
+    if (hint) hint.style.display = 'block';
+  });
+}, 30000);
+startPlaybackBtn2 && (startPlaybackBtn2.onclick = () => {
+  const hint = document.getElementById('autoplayHint');
+  if (hint) hint.style.display = 'none';
+  video2.play().catch(()=>{});
+});
+</script>
+</body>
+</html>

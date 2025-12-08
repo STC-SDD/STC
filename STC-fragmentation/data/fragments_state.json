@@ -1,0 +1,14 @@
+{
+    "frag1": {
+        "start": 14.139999999999787,
+        "end": 25.21999999999955,
+        "sous_titreur": "Alice",
+        "statut": "done"
+    },
+    "frag2": {
+        "start": 25.75999999999954,
+        "end": 35.75999999999999,
+        "sous_titreur": "Alice",
+        "statut": "en cours"
+    }
+}

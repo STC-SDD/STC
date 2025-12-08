@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sous-titreur</title>
+  <style>
+    #subtitle { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 22px; color: white; text-shadow: 2px 2px 4px black; }
+    #container { position: relative; width: 640px; }
+  </style>
+</head>
+<body>
+  <h2>Interface Sous-titreur</h2>
+
+  <div id="container">
+    <video id="video" width="640" controls autoplay>
+      <source src="/video/sous_titrage.mp4" type="video/mp4">
+    </video>
+    <div id="subtitle"></div>
+  </div>
+
+  <input id="inputSubtitle" placeholder="Écrire..." disabled>
+  <button id="submitBtn" disabled>Soumettre</button>
+
+  <div id="fragments"></div>
+
+<script>
+const username = prompt("Votre nom :");
+const ws = new WebSocket(`ws://localhost:8000/ws/${username}`);
+
+let fragments = [];
+let currentFrag = null;
+let waiting = false;
+
+ws.onmessage = (event) => {
+    const data = event.data;
+
+    // 🔥 Nouveau fragment généré par VAD
+    if (data === "NEW_FRAGMENT_AVAILABLE") {
+        console.log("Nouveau fragment généré.");
+        ws.send("REQUEST_FRAGMENT");
+        return;
+    }
+
+    // 🔥 Nouveau fragment assigné
+    const m = data.match(/FRAGMENT (\S+) ([0-9.]+) ([0-9.]+)/);
+    if (m) {
+        const frag = {
+            id: m[1],
+            start: parseFloat(m[2]),
+            end: parseFloat(m[3]),
+            submitted: false
+        };
+        fragments.push(frag);
+        fragments.sort((a,b)=>a.start-b.start);
+        document.getElementById("fragments").innerHTML +=
+            `<p>Fragment reçu : ${frag.start} → ${frag.end}</p>`;
+        return;
+    }
+};
+
+const video = document.getElementById("video");
+const input = document.getElementById("inputSubtitle");
+const btn = document.getElementById("submitBtn");
+
+video.ontimeupdate = () => {
+    const t = video.currentTime;
+
+    if (waiting) { input.disabled = false; btn.disabled = false; return; }
+
+    currentFrag = fragments.find(f => t >= f.start && t < f.end);
+    if (currentFrag) {
+        input.disabled = false; btn.disabled = false;
+    } else {
+        const ended = fragments.find(f => t >= f.end && !f.submitted);
+        if (ended) {
+            waiting = true;
+            currentFrag = ended;
+            input.disabled = false; btn.disabled = false;
+        } else {
+            input.disabled = true; btn.disabled = true;
+        }
+    }
+};
+
+btn.onclick = () => {
+    if (!currentFrag) return;
+    ws.send(input.value);
+
+    currentFrag.submitted = true;
+    waiting = false;
+
+    input.value = "";
+    input.disabled = true;
+    btn.disabled = true;
+};
+</script>
+
+</body>
+</html>
