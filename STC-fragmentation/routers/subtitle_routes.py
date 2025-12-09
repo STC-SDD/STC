@@ -6,9 +6,14 @@ router = APIRouter()
 
 @router.get("/subtitles")
 def get_subtitles():
-    path = "data/subtitles.json"   # path to the file
+    print("📌 /subtitles endpoint HIT")
+    path = "data/subtitles.json"
     if not os.path.exists(path):
+        print("❌ subtitles.json introuvable !")
         return []
 
     with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+
+    print("📌 subtitles chargés :", data)
+    return list(data.values())

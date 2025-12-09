@@ -21,7 +21,6 @@
 
 <div id="container">
   <video id="video" width="640" controls>
-    <!-- Chemin correct depuis FastAPI -->
     <source src="/video/sous_titrage.mp4" type="video/mp4">
   </video>
   <div id="subtitle"></div>
@@ -30,24 +29,27 @@
 <script>
   let fragments = [];
 
-fetch("/subtitles")
-  .then(res => res.json())
-  .then(data => {
-    // Convertir objet en tableau
-    fragments = Object.values(data).sort((a, b) => a.start - b.start);
-    console.log(fragments); // <--- Vérifie dans la console que c'est bien un tableau
+  // Récupération des sous-titres depuis FastAPI
+  fetch("/subtitles")
+    .then(res => res.json())
+    .then(data => {
+      // Transformer en tableau si nécessaire et trier par start
+      fragments = Array.isArray(data) ? data : Object.values(data);
+      fragments.sort((a, b) => a.start - b.start);
+      console.log("Fragments:", fragments); // pour debug
+    })
+    .catch(err => console.error("Erreur fetch:", err));
+
+  const video = document.getElementById("video");
+  const subtitleEl = document.getElementById("subtitle");
+
+  // Affichage en temps réel
+  video.addEventListener("timeupdate", () => {
+    const t = video.currentTime;
+    const f = fragments.find(fr => t >= fr.start && t < fr.end);
+    subtitleEl.textContent = f ? f.text : "";
   });
-
-const video = document.getElementById("video");
-const subtitleEl = document.getElementById("subtitle");
-
-video.ontimeupdate = () => {
-  const t = video.currentTime;
-  const f = fragments.find(fr => t >= fr.start && t < fr.end);
-  subtitleEl.textContent = f ? f.text : "";
-};
 </script>
-
 
 </body>
 </html>
